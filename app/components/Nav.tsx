@@ -32,4 +32,6 @@ const NavBar: React.FC = () => {
   );
 };
 
+NavBar.displayName = "NavBar";
+
 export default NavBar;

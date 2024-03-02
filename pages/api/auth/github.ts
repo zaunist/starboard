@@ -6,8 +6,8 @@ import { useUserStore } from '../../../store';
 export default NextAuth({
  providers: [
     GitHubProvider({
-      clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_SECRET,
+      clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID as string,
+      clientSecret: process.env.GITHUB_SECRET as string,
     }),
  ],
  callbacks: {

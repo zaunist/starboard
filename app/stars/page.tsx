@@ -12,7 +12,7 @@ const StarsPage = () => {
   const [count, setCount] = useState(-1);
   const observer = useRef<IntersectionObserver | null>(null);
   const lastStarElementRef = useRef(null);
-  const username = useUserStore((state) => state.username);
+  const { username } = useUserStore();
 
   useEffect(() => {
     // 确保在客户端运行
@@ -35,13 +35,12 @@ const StarsPage = () => {
 
   useEffect(() => {
     const fetchStars = async () => {
+      console.log("username: ", username);
       const response = await fetch(`/api/stars?user=${username}&page=${page}`);
       if (!response.ok) {
         throw new Error("Failed to fetch stars: " + response.statusText);
       }
       const data = await response.json();
-      console.log("page: %s", page);
-      console.log("data: ", data);
       setStars((prevStars) => [...prevStars, ...data]);
       setCount(data.length);
     };

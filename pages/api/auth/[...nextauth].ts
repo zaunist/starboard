@@ -11,11 +11,12 @@ export default NextAuth({
     }),
  ],
  callbacks: {
-    async session({ session, token, user }) {
+    signIn: async({  user }) => {
         if (user) {
             useUserStore.getState().setUsername(user.name);
           }
-        return session;
+
+        return true;
       },
  }
 });

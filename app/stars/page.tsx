@@ -1,10 +1,8 @@
 "use client";
-
-// app/stars/page.tsx
 import { useState, useEffect, useRef } from "react";
 import Card from "../components/Card"; // 根据你的项目结构调整路径
 import { Repo } from "../entity/repo";
-import { useUserStore } from "../../store";
+import { useSession } from "next-auth/react";
 
 const StarsPage = () => {
   const [stars, setStars] = useState<Repo[]>([]);
@@ -12,7 +10,7 @@ const StarsPage = () => {
   const [count, setCount] = useState(-1);
   const observer = useRef<IntersectionObserver | null>(null);
   const lastStarElementRef = useRef(null);
-  const { username } = useUserStore();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     // 确保在客户端运行
@@ -31,35 +29,48 @@ const StarsPage = () => {
     if (lastStarElementRef.current) {
       observer.current.observe(lastStarElementRef.current);
     }
-  }, [stars]);
+  }, [stars, count]);
 
   useEffect(() => {
     const fetchStars = async () => {
-      console.log("username: ", username);
-      const response = await fetch(`/api/stars?user=${username}&page=${page}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch stars: " + response.statusText);
+      if (status === "authenticated") {
+        const username = session?.user?.name;
+        const response = await fetch(
+          `/api/stars?user=${username}&page=${page}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch stars: " + response.statusText);
+        }
+        const data = await response.json();
+        setStars((prevStars) => [...prevStars, ...data]);
+        setCount(data.length);
       }
-      const data = await response.json();
-      setStars((prevStars) => [...prevStars, ...data]);
-      setCount(data.length);
     };
 
-    fetchStars();
-  }, [page]);
+    // 仅在用户登录时触发数据获取
+    if (status === "authenticated") {
+      fetchStars();
+    }
+  }, [page, status, session]);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {stars.map((star, index) => (
-        <Card
-          key={star.id}
-          title={star.title}
-          description={star.description || "No description provided"}
-          imageUrl={star.imageUrl}
-          repositoryUrl={star.repositoryUrl}
-          ref={index === stars.length - 1 ? lastStarElementRef : null}
-        />
-      ))}
+      {status !== "authenticated" ? (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-4xl bg-white shadow-lg p-6 rounded">
+          <p>请登录以获取 star 列表</p>
+        </div>
+      ) : (
+        stars.map((star, index) => (
+          <Card
+            key={star.id}
+            title={star.title}
+            description={star.description || "No description provided"}
+            imageUrl={star.imageUrl}
+            repositoryUrl={star.repositoryUrl}
+            ref={index === stars.length - 1 ? lastStarElementRef : null}
+          />
+        ))
+      )}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 // pages/api/auth/[...nextauth].ts
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
-import { useUserStore } from '../../../store';
+
 
 export default NextAuth({
  providers: [
@@ -11,12 +11,12 @@ export default NextAuth({
     }),
  ],
  callbacks: {
-    signIn: async({  user }) => {
-        if (user) {
-            useUserStore.getState().setUsername(user.name);
-          }
-
-        return true;
-      },
- }
+  async jwt({ token, account, profile }) {
+    // Persist the OAuth access_token and or the user id to the token right after signin
+    if (account) {
+      token.accessToken = account.access_token
+    }
+    return token
+  }
+}
 });

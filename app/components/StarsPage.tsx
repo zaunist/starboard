@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Card from "../components/Card"; // 根据你的项目结构调整路径
+import Card from "./Card"; // 根据你的项目结构调整路径
 import { Repo } from "../entity/repo";
 import { useSession } from "next-auth/react";
 

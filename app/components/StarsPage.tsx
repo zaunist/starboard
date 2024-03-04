@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import Card from "./Card"; // 根据你的项目结构调整路径
 import { Repo } from "../entity/repo";
 import { useSession } from "next-auth/react";
+import React from "react";
 
 const StarsPage = () => {
   const [stars, setStars] = useState<Repo[]>([]);
